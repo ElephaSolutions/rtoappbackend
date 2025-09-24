@@ -1,0 +1,41 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: elepha-solutions
+      comment: changeSet to create vehicle tables
+      changes:
+        - createTable:
+            ifNotExists: true
+            remarks: Table to store Vehicle information
+            tableName: vehicle_info
+            columns:
+              - column:
+                  name: vehicle_no
+                  type: VARCHAR
+                  remarks: The unique vehicle number
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: fc_date
+                  type: TIMESTAMP
+                  remarks: Date of expiry for fitness certificate
+              - column:
+                  name: ins_date
+                  type: TIMESTAMP
+                  remarks: Date of expiry for insurance
+              - column:
+                  name: permit_date
+                  type: TIMESTAMP
+                  remarks: Date of expiry for permit
+              - column:
+                  name: tax_date
+                  type: TIMESTAMP
+                  remarks: Due date for tax
+              - column:
+                  name: puc_date
+                  type: TIMESTAMP
+                  remarks: Date of expiry for pollution certificate
+              - column:
+                  name: contact_no
+                  type: VARCHAR
+                  remarks: Contact number of user
