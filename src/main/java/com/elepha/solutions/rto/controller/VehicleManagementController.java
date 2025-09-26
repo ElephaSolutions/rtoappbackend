@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,5 +38,12 @@ public class VehicleManagementController {
         long totalCount = vehicleInfoRepository.count();
         log.atInfo().log("Fetched {} records for fetch request out of {} records", vehicleInfoList.size(), totalCount);
         return ResponseEntity.ok(new VehicleListResponseDTO(vehicleInfoList, totalCount));
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteVehicleInfo(@RequestHeader(name = "vehicle_number") String vehicleNumber) {
+        vehicleInfoRepository.deleteById(vehicleNumber);
+        log.atInfo().log("Deleted vehicle record with number {}", vehicleNumber);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
