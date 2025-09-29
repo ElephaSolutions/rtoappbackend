@@ -1,0 +1,4 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://ep-billowing-wind-ad9qtxyf-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
+    username: neondb_owner

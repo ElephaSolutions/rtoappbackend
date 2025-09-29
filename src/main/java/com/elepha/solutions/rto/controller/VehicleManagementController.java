@@ -3,8 +3,8 @@ package com.elepha.solutions.rto.controller;
 import com.elepha.solutions.rto.dto.VehicleListResponseDTO;
 import com.elepha.solutions.rto.model.VehicleInfo;
 import com.elepha.solutions.rto.repository.VehicleInfoRepository;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -13,13 +13,17 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Slf4j
 @RestController
-@AllArgsConstructor
 @RequestMapping("/api/v1/vehicle")
 public class VehicleManagementController {
 
+    private static final Logger log = LoggerFactory.getLogger(VehicleManagementController.class);
+
     private final VehicleInfoRepository vehicleInfoRepository;
+
+    private VehicleManagementController(VehicleInfoRepository vehicleInfoRepository) {
+        this.vehicleInfoRepository = vehicleInfoRepository;
+    }
 
     @GetMapping("/ping")
     public String ping() {

@@ -4,13 +4,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.sql.Timestamp;
 
-@Getter
-@Setter
 @Entity
 @Table(name = "vehicle_info")
 public class VehicleInfo {
@@ -30,4 +26,60 @@ public class VehicleInfo {
     private Timestamp pollutionCertificateExpiryDate;
     @Column(name = "contact_no")
     private String contactNumber;
+
+    public String getVehicleNumber() {
+        return vehicleNumber;
+    }
+
+    public void setVehicleNumber(String vehicleNumber) {
+        this.vehicleNumber = vehicleNumber;
+    }
+
+    public Timestamp getFcExpiryDate() {
+        return fcExpiryDate;
+    }
+
+    public void setFcExpiryDate(Timestamp fcExpiryDate) {
+        this.fcExpiryDate = fcExpiryDate;
+    }
+
+    public Timestamp getInsuranceExpiryDate() {
+        return insuranceExpiryDate;
+    }
+
+    public void setInsuranceExpiryDate(Timestamp insuranceExpiryDate) {
+        this.insuranceExpiryDate = insuranceExpiryDate;
+    }
+
+    public Timestamp getPermitExpiryDate() {
+        return permitExpiryDate;
+    }
+
+    public void setPermitExpiryDate(Timestamp permitExpiryDate) {
+        this.permitExpiryDate = permitExpiryDate;
+    }
+
+    public Timestamp getTaxDueDate() {
+        return taxDueDate;
+    }
+
+    public void setTaxDueDate(Timestamp taxDueDate) {
+        this.taxDueDate = taxDueDate;
+    }
+
+    public Timestamp getPollutionCertificateExpiryDate() {
+        return pollutionCertificateExpiryDate;
+    }
+
+    public void setPollutionCertificateExpiryDate(Timestamp pollutionCertificateExpiryDate) {
+        this.pollutionCertificateExpiryDate = pollutionCertificateExpiryDate;
+    }
+
+    public String getContactNumber() {
+        return contactNumber;
+    }
+
+    public void setContactNumber(String contactNumber) {
+        this.contactNumber = contactNumber;
+    }
 }
