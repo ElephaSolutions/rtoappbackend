@@ -1,3 +1,7 @@
+FROM maven:3.9.11-eclipse-temurin-25 AS maven
+COPY . .
+RUN maven clean install
+
 # Perform the extraction in a separate builder container
 FROM bellsoft/liberica-openjre-debian:25 AS builder
 WORKDIR /builder
@@ -5,7 +9,7 @@ WORKDIR /builder
 # Adjust this to 'build/libs/*.jar' if you're using Gradle
 ARG JAR_FILE=target/*.jar
 # Copy the jar file to the working directory and rename it to application.jar
-COPY ${JAR_FILE} application.jar
+COPY --from=maven ${JAR_FILE} application.jar
 # Extract the jar file using an efficient layout
 RUN java -Djarmode=tools -jar application.jar extract --layers --destination extracted
 
@@ -19,6 +23,7 @@ COPY --from=builder /builder/extracted/dependencies/ ./
 COPY --from=builder /builder/extracted/spring-boot-loader/ ./
 COPY --from=builder /builder/extracted/snapshot-dependencies/ ./
 COPY --from=builder /builder/extracted/application/ ./
+EXPOSE 8080
 # Start the application jar - this is not the uber jar used by the builder
 # This jar only contains application code and references to the extracted jar files
 # This layout is efficient to start up and CDS/AOT cache friendly
