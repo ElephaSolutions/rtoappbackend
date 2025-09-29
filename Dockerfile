@@ -1,6 +1,6 @@
 FROM maven:3.9.11-eclipse-temurin-25 AS maven
 COPY . .
-RUN maven clean install
+RUN mvn clean install
 
 # Perform the extraction in a separate builder container
 FROM bellsoft/liberica-openjre-debian:25 AS builder
