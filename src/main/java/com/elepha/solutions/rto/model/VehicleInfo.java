@@ -4,10 +4,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.envers.Audited;
 
 import java.sql.Timestamp;
 
 @Entity
+@Audited
 @Table(name = "vehicle_info")
 public class VehicleInfo {
 
