@@ -56,12 +56,14 @@ public class VehicleManagementController {
 
     @GetMapping("/recent-activity")
     public ResponseEntity<List<RecentActivitiesResponse>> fetchRecentActivity() {
+        log.atInfo().log("Received fetch recent activity request");
         List<RecentActivitiesResponse> revisions = namedParameterJdbcTemplate.query(FETCH_REVISION_HISTORY, (rs, rowNum) -> new RecentActivitiesResponse(RevisionType.fromRepresentation(rs.getByte("revtype")), rs.getString("vehicle_no"), Timestamp.from(Instant.ofEpochMilli(rs.getLong("revtstmp")))));
         return ResponseEntity.ok(revisions);
     }
 
     @GetMapping("/metadata")
     public ResponseEntity<MetadataApiResponse> fetchMetadata() {
+        log.atInfo().log("Received fetch metadata request");
         Timestamp currentTimestamp = Timestamp.from(Instant.now().plus(30, ChronoUnit.DAYS));
         return ResponseEntity.ok(
                 new MetadataApiResponse(

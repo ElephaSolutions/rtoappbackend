@@ -1,0 +1,115 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: elepha-solutions
+      comment: changeSet to create vehicle tables
+      changes:
+        - createTable:
+            ifNotExists: true
+            remarks: Table to store Vehicle information
+            tableName: vehicle_info
+            columns:
+              - column:
+                  name: vehicle_no
+                  type: VARCHAR
+                  remarks: The unique vehicle number
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: fc_date
+                  type: TIMESTAMP
+                  remarks: Date of expiry for fitness certificate
+              - column:
+                  name: ins_date
+                  type: TIMESTAMP
+                  remarks: Date of expiry for insurance
+              - column:
+                  name: permit_date
+                  type: TIMESTAMP
+                  remarks: Date of expiry for permit
+              - column:
+                  name: tax_date
+                  type: TIMESTAMP
+                  remarks: Due date for tax
+              - column:
+                  name: puc_date
+                  type: TIMESTAMP
+                  remarks: Date of expiry for pollution certificate
+              - column:
+                  name: contact_no
+                  type: VARCHAR
+                  remarks: Contact number of user
+        - createTable:
+            ifNotExists: true
+            remarks: Table to store Revision info
+            tableName: revinfo
+            columns:
+              - column:
+                  name: rev
+                  type: INTEGER
+                  remarks: Unique identifier to identify revision record
+                  autoIncrement: true
+                  incrementBy: 1
+                  startWith: 1
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: revtstmp
+                  type: BIGINT
+                  remarks: Revision Timestamp
+        - createTable:
+            ifNotExists: true
+            remarks: Table to store Vehicle audit information
+            tableName: vehicle_info_aud
+            columns:
+              - column:
+                  name: vehicle_no
+                  type: VARCHAR
+                  remarks: The unique vehicle number
+              - column:
+                  name: fc_date
+                  type: TIMESTAMP
+                  remarks: Date of expiry for fitness certificate
+              - column:
+                  name: ins_date
+                  type: TIMESTAMP
+                  remarks: Date of expiry for insurance
+              - column:
+                  name: permit_date
+                  type: TIMESTAMP
+                  remarks: Date of expiry for permit
+              - column:
+                  name: tax_date
+                  type: TIMESTAMP
+                  remarks: Due date for tax
+              - column:
+                  name: puc_date
+                  type: TIMESTAMP
+                  remarks: Date of expiry for pollution certificate
+              - column:
+                  name: contact_no
+                  type: VARCHAR
+                  remarks: Contact number of user
+              - column:
+                  name: rev
+                  type: INTEGER
+                  remarks: reference to revision metadata in revInfo table
+                  constraints:
+                    foreignKeyName: rev_foreign_key
+                    referencedColumnNames: rev
+                    referencedTableName: revinfo
+              - column:
+                  name: revtype
+                  type: TINYINT
+                  remarks: Type of revision
+        - addPrimaryKey:
+            columnNames: vehicle_no,rev
+            constraintName: vehicle_info_aud_pk
+            tableName: vehicle_info_aud
+        - createSequence:
+            cacheSize: 50
+            cycle: true
+            dataType: INTEGER
+            incrementBy: 50
+            sequenceName: revinfo_seq
+            startValue: 1
