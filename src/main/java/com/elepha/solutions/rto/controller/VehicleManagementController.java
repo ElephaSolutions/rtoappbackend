@@ -1,5 +1,6 @@
 package com.elepha.solutions.rto.controller;
 
+import com.elepha.solutions.rto.dto.MetadataApiResponse;
 import com.elepha.solutions.rto.dto.RecentActivitiesResponse;
 import com.elepha.solutions.rto.dto.VehicleListResponseDTO;
 import com.elepha.solutions.rto.model.VehicleInfo;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @RestController
@@ -56,6 +58,17 @@ public class VehicleManagementController {
     public ResponseEntity<List<RecentActivitiesResponse>> fetchRecentActivity() {
         List<RecentActivitiesResponse> revisions = namedParameterJdbcTemplate.query(FETCH_REVISION_HISTORY, (rs, rowNum) -> new RecentActivitiesResponse(RevisionType.fromRepresentation(rs.getByte("revtype")), rs.getString("vehicle_no"), Timestamp.from(Instant.ofEpochMilli(rs.getLong("revtstmp")))));
         return ResponseEntity.ok(revisions);
+    }
+
+    @GetMapping("/metadata")
+    public ResponseEntity<MetadataApiResponse> fetchMetadata() {
+        Timestamp currentTimestamp = Timestamp.from(Instant.now().plus(30, ChronoUnit.DAYS));
+        return ResponseEntity.ok(
+                new MetadataApiResponse(
+                        vehicleInfoRepository.count(),
+                        vehicleInfoRepository.countByFcExpiryDateBeforeOrInsuranceExpiryDateBeforeOrPermitExpiryDateBeforeOrTaxDueDateBeforeOrPollutionCertificateExpiryDateBefore(currentTimestamp, currentTimestamp, currentTimestamp, currentTimestamp, currentTimestamp)
+                )
+        );
     }
 
     @DeleteMapping
