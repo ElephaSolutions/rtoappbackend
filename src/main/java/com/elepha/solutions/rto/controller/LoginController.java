@@ -25,7 +25,7 @@ public class LoginController {
     }
 
 
-    @PostMapping("/login")
+    @PostMapping("/api/login")
     public void login(@RequestBody LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) {
         UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(
                 loginRequest.username(), loginRequest.password());

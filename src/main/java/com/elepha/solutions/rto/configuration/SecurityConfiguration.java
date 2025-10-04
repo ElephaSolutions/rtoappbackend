@@ -1,10 +1,13 @@
 package com.elepha.solutions.rto.configuration;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -19,6 +22,10 @@ import org.springframework.security.web.context.DelegatingSecurityContextReposit
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.csrf.*;
+import org.springframework.util.StringUtils;
+
+import java.util.function.Supplier;
 
 @Configuration
 @EnableWebSecurity
@@ -28,13 +35,11 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(
                 authorize -> authorize
-                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/api/login").permitAll()
                         .anyRequest().authenticated()
         ).securityContext(
                 securityContext -> securityContext.requireExplicitSave(true)
-        ).csrf(
-                AbstractHttpConfigurer::disable
-        );
+        ).cors(Customizer.withDefaults()).csrf(AbstractHttpConfigurer::disable);
 
         return http.build();
     }
@@ -63,7 +68,7 @@ public class SecurityConfiguration {
     public UserDetailsService userDetailsService() {
         UserDetails userDetails = User.builder()
                 .username("user")
-                .password("{bcrypt}$2a$10$g6NPVdq6kaD/zVan22/aeuLGctzDBpD.e/64ZQT6Qxo7xxCo7UeG.")
+                .password("{bcrypt}$2a$10$2k/nGXXgsnwHwcc5UfrAIeV9QJOaGx77QxHwYVj4ZcdDcwUtr0xZS")
                 .roles("USER")
                 .build();
         UserDetails adminDetails = User.builder()
@@ -72,5 +77,40 @@ public class SecurityConfiguration {
                 .roles("USER", "ADMIN")
                 .build();
         return new InMemoryUserDetailsManager(userDetails);
+    }
+
+    static final class SpaCsrfTokenRequestHandler implements CsrfTokenRequestHandler {
+        private final CsrfTokenRequestHandler plain = new CsrfTokenRequestAttributeHandler();
+        private final CsrfTokenRequestHandler xor = new XorCsrfTokenRequestAttributeHandler();
+
+        @Override
+        public void handle(HttpServletRequest request, HttpServletResponse response, Supplier<CsrfToken> csrfToken) {
+            /*
+             * Always use XorCsrfTokenRequestAttributeHandler to provide BREACH protection of
+             * the CsrfToken when it is rendered in the response body.
+             */
+            this.xor.handle(request, response, csrfToken);
+            /*
+             * Render the token value to a cookie by causing the deferred token to be loaded.
+             */
+            csrfToken.get();
+        }
+
+        @Override
+        public String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
+            String headerValue = request.getHeader(csrfToken.getHeaderName());
+            /*
+             * If the request contains a request header, use CsrfTokenRequestAttributeHandler
+             * to resolve the CsrfToken. This applies when a single-page application includes
+             * the header value automatically, which was obtained via a cookie containing the
+             * raw CsrfToken.
+             *
+             * In all other cases (e.g. if the request contains a request parameter), use
+             * XorCsrfTokenRequestAttributeHandler to resolve the CsrfToken. This applies
+             * when a server-side rendered form includes the _csrf request parameter as a
+             * hidden input.
+             */
+            return (StringUtils.hasText(headerValue) ? this.plain : this.xor).resolveCsrfTokenValue(request, csrfToken);
+        }
     }
 }
