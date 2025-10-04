@@ -3,3 +3,7 @@ databaseChangeLog:
       file: rto_db_v1.yaml
       errorIfMissing: true
       relativeToChangelogFile: true
+  - include:
+      file: rto_db_v2.yaml
+      errorIfMissing: true
+      relativeToChangelogFile: true
