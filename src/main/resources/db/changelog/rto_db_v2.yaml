@@ -1,0 +1,59 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: elepha-solutions
+      comment: Tables needed for user detail management by spring security
+      changes:
+        - createTable:
+            ifNotExists: true
+            remarks: Table to store User login credentials
+            tableName: users
+            columns:
+              - column:
+                  name: username
+                  type: VARCHAR
+                  remarks: The username for the user
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: password
+                  type: VARCHAR
+                  remarks: Password for the user
+                  constraints:
+                    nullable: false
+              - column:
+                  name: enabled
+                  type: BOOLEAN
+                  remarks: If the user is active
+                  constraints:
+                    nullable: false
+        - createTable:
+            ifNotExists: true
+            remarks: Table to store user authorities
+            tableName: authorities
+            columns:
+              - column:
+                  name: username
+                  type: VARCHAR
+                  remarks: username for the user
+                  constraints:
+                    foreignKeyName: fk_authorities_users
+                    referencedColumnNames: username
+                    referencedTableName: users
+                    nullable: false
+              - column:
+                  name: authority
+                  type: VARCHAR
+                  remarks: Authority granted to user
+                  constraints:
+                    nullable: false
+        - createIndex:
+            indexName: ix_auth_username
+            tableName: authorities
+            unique: true
+            columns:
+              - column:
+                  name: username
+              - column:
+                  name: authority
