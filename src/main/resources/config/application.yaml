@@ -9,3 +9,4 @@ server:
     session:
       cookie:
         httpOnly: true
+        sameSite: NONE
