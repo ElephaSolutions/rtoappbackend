@@ -27,7 +27,7 @@ const Dashboard = () => {
 
   useEffect(
     () => {
-      fetch(`${BACKEND_URL}/api/v1/vehicle/recent-activity`, {credentials: 'include'})
+      fetch(`${BACKEND_URL}/api/v1/vehicle/recent-activity`) 
       .then(response => {
         if(response.status === 401 || response.status === 403)
           navigate("/login")
@@ -39,7 +39,7 @@ const Dashboard = () => {
         setRecentActivities(responseJson)
       })
 
-      fetch(`${BACKEND_URL}/api/v1/vehicle/metadata`, {credentials: 'include'})
+      fetch(`${BACKEND_URL}/api/v1/vehicle/metadata`)
       .then(response => {
         if(!response.ok)
           throw new Error("Error fetching recent activities from backend")
