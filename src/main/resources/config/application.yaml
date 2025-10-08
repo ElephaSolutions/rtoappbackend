@@ -10,3 +10,11 @@ server:
       cookie:
         httpOnly: true
         sameSite: NONE
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: 'health,info,env,beans,metrics'

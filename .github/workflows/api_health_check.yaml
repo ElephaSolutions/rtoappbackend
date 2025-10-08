@@ -1,0 +1,10 @@
+name: api_health_check workflow
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+jobs:
+  api_health_check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: call health endpoint for backend to check availability
+        run: curl --fail https://rtoappbyourself.onrender.com/actuator/health
