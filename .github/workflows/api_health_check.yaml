@@ -1,7 +1,7 @@
 name: api_health_check workflow
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '*/40 * * * *'
 jobs:
   api_health_check:
     runs-on: ubuntu-latest
