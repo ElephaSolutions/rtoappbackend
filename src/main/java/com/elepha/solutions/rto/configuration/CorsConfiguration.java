@@ -9,7 +9,7 @@ public class CorsConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
+        registry.addMapping("/**")
                 .allowedOrigins("http://localhost:8080", "https://rtoease.vercel.app")
                 .allowedMethods("DELETE", "GET", "POST")
                 .allowCredentials(true);
