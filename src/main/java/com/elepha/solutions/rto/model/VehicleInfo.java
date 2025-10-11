@@ -28,6 +28,7 @@ public class VehicleInfo {
     private Timestamp pollutionCertificateExpiryDate;
     @Column(name = "contact_no")
     private String contactNumber;
+    private String username;
 
     public String getVehicleNumber() {
         return vehicleNumber;
@@ -79,6 +80,14 @@ public class VehicleInfo {
 
     public String getContactNumber() {
         return contactNumber;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public void setContactNumber(String contactNumber) {

@@ -1,0 +1,78 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: elepha-solutions
+      comment: Modified security and vehicle info tables for multi tenancy
+      changes:
+        - addColumn:
+            tableName: vehicle_info_aud
+            columns:
+              - column:
+                  name: username
+                  type: VARCHAR
+                  remarks: The username for the user
+                  constraints:
+                    nullable: false
+        - addColumn:
+            tableName: vehicle_info
+            columns:
+              - column:
+                  name: username
+                  type: VARCHAR
+                  remarks: The username for the user
+                  constraints:
+                    nullable: false
+                    foreignKeyName: vehicle_info_fk
+                    referencedColumnNames: username
+                    referencedTableName: users
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: owner_name
+                  type: VARCHAR
+                  remarks: The name of the owner of the RTO agency
+                  constraints:
+                    nullable: false
+              - column:
+                  name: agency_name
+                  type: VARCHAR
+                  remarks: The name of the RTO agency
+                  constraints:
+                    nullable: false
+              - column:
+                  name: contact_number
+                  type: VARCHAR
+                  remarks: Contact number for the owner
+                  constraints:
+                    nullable: false
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: username
+                  value: baskar
+              - column:
+                  name: password
+                  value: '{bcrypt}$2a$10$2k/nGXXgsnwHwcc5UfrAIeV9QJOaGx77QxHwYVj4ZcdDcwUtr0xZS'
+              - column:
+                  name: enabled
+                  valueBoolean: true
+              - column:
+                  name: owner_name
+                  value: Baskar
+              - column:
+                  name: agency_name
+                  value: 'Baskar Auto Agency'
+              - column:
+                  name: contact_number
+                  value: 1234567890
+        - insert:
+            tableName: authorities
+            columns:
+              - column:
+                  name: username
+                  value: baskar
+              - column:
+                  name: authority
+                  value: USER

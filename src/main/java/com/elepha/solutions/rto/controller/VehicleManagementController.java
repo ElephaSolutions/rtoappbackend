@@ -5,6 +5,7 @@ import com.elepha.solutions.rto.dto.RecentActivitiesResponse;
 import com.elepha.solutions.rto.dto.VehicleListResponseDTO;
 import com.elepha.solutions.rto.model.VehicleInfo;
 import com.elepha.solutions.rto.repository.VehicleInfoRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import org.hibernate.envers.RevisionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.security.core.context.DeferredSecurityContext;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
@@ -29,10 +32,12 @@ public class VehicleManagementController {
 
     private final VehicleInfoRepository vehicleInfoRepository;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final SecurityContextRepository httpSessionSecurityContextRepository;
 
-    private VehicleManagementController(VehicleInfoRepository vehicleInfoRepository, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+    private VehicleManagementController(VehicleInfoRepository vehicleInfoRepository, NamedParameterJdbcTemplate namedParameterJdbcTemplate, SecurityContextRepository securityContextRepository) {
         this.vehicleInfoRepository = vehicleInfoRepository;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+        this.httpSessionSecurityContextRepository = securityContextRepository;
     }
 
     @GetMapping("/ping")
@@ -41,8 +46,10 @@ public class VehicleManagementController {
     }
 
     @PostMapping
-    public ResponseEntity<VehicleInfo> saveVehicleInfo(@RequestBody VehicleInfo vehicleInfo) {
+    public ResponseEntity<VehicleInfo> saveVehicleInfo(@RequestBody VehicleInfo vehicleInfo, HttpServletRequest httpServletRequest) {
         log.atInfo().log("Received save vehicle request");
+        DeferredSecurityContext deferredSecurityContext = httpSessionSecurityContextRepository.loadDeferredContext(httpServletRequest);
+        vehicleInfo.setUsername(deferredSecurityContext.get().getAuthentication().getName());
         return ResponseEntity.ok(vehicleInfoRepository.save(vehicleInfo));
     }
 
