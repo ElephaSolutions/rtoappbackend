@@ -3,6 +3,8 @@ package com.elepha.solutions.rto.configuration;
 import com.elepha.solutions.rto.dto.AgencyDetailsDTO;
 import com.elepha.solutions.rto.model.VehicleInfo;
 import com.elepha.solutions.rto.repository.VehicleInfoRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +21,7 @@ import org.springframework.web.client.RestClient;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 @EnableScheduling
@@ -33,15 +36,17 @@ public class ExpiryNotificationScheduledJob {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final String messageServiceApiKey;
     private final String licenseNumber;
+    private final ObjectMapper objectMapper;
 
     public ExpiryNotificationScheduledJob(RestClient.Builder restClientBuilder, VehicleInfoRepository vehicleInfoRepository
             , NamedParameterJdbcTemplate namedParameterJdbcTemplate, @Value("${message-service.host}") String messageServiceHost
-            , @Value("${message-service.api-key}") String messageServiceApiKey, @Value("${message-service.licence-number}") String licenseNumber) {
+            , @Value("${message-service.api-key}") String messageServiceApiKey, @Value("${message-service.licence-number}") String licenseNumber, ObjectMapper objectMapper) {
         this.restClient = restClientBuilder.baseUrl(messageServiceHost).build();
         this.vehicleInfoRepository = vehicleInfoRepository;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
         this.messageServiceApiKey = messageServiceApiKey;
         this.licenseNumber = licenseNumber;
+        this.objectMapper = objectMapper;
     }
 
     @Transactional
@@ -84,7 +89,12 @@ public class ExpiryNotificationScheduledJob {
                                                             .queryParam("Contact", expiringRecordPair.getFirst().getContactNumber())
                                                             .queryParam("Param", templateParams).build()
                                     ).retrieve().toEntity(String.class);
-                                    log.info("Received response from message API");
+                                    try {
+                                        Map parsedResponse = this.objectMapper.readValue(response.getBody(), Map.class);
+                                        log.info("Received response from message API {}", parsedResponse.get("ApiResponse"));
+                                    } catch (JsonProcessingException e) {
+                                        log.error("Error parsing Message Notification API response");
+                                    }
                                 }
                         );
                     });
