@@ -40,7 +40,7 @@ public class ExpiryNotificationScheduledJob {
 
     public ExpiryNotificationScheduledJob(RestClient.Builder restClientBuilder, VehicleInfoRepository vehicleInfoRepository
             , NamedParameterJdbcTemplate namedParameterJdbcTemplate, @Value("${message-service.host}") String messageServiceHost
-            , @Value("${message-service.api-key}") String messageServiceApiKey, @Value("${message-service.licence-number}") String licenseNumber, ObjectMapper objectMapper) {
+            , @Value("${message-service.api-key}") String messageServiceApiKey, @Value("${message-service.license-number}") String licenseNumber, ObjectMapper objectMapper) {
         this.restClient = restClientBuilder.baseUrl(messageServiceHost).build();
         this.vehicleInfoRepository = vehicleInfoRepository;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
