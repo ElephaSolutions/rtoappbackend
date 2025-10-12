@@ -18,3 +18,7 @@ management:
     web:
       exposure:
         include: 'health,info,env,beans,metrics'
+message-service:
+  host: ${MESSAGESERVICE_HOST}
+  api-key: ${MESSAGESERVICE_APIKEY}
+  license-number: ${MESSAGESERVICE_LICENSENUMBER}
