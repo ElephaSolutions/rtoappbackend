@@ -1,6 +1,8 @@
 package com.elepha.solutions.rto.repository;
 
 import com.elepha.solutions.rto.model.VehicleInfo;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -17,4 +19,5 @@ public interface VehicleInfoRepository extends PagingAndSortingRepository<Vehicl
     long countByFcExpiryDateBeforeOrInsuranceExpiryDateBeforeOrPermitExpiryDateBeforeOrTaxDueDateBeforeOrPollutionCertificateExpiryDateBefore(Timestamp fcExpiryDate, Timestamp insuranceExpiryDate, Timestamp permitExpiryDate, Timestamp taxDueDate, Timestamp pollutionCertificateExpiryDate);
     @NativeQuery(value = "select * from vehicle_info where date_trunc('day', fc_date) = :check_date or date_trunc('day', ins_date) = :check_date or date_trunc('day', permit_date) = :check_date or date_trunc('day', tax_date) = :check_date or date_trunc('day', puc_date) = :check_date")
     Stream<VehicleInfo> fetchExpiringRecords(@Param(value = "check_date") LocalDate checkDate);
+    Slice<VehicleInfo> findByUsername(String username, Pageable pageable);
 }

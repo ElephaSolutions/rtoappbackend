@@ -11,8 +11,6 @@ databaseChangeLog:
                   name: username
                   type: VARCHAR
                   remarks: The username for the user
-                  constraints:
-                    nullable: false
         - addColumn:
             tableName: vehicle_info
             columns:

@@ -2,19 +2,20 @@ package com.elepha.solutions.rto.controller;
 
 import com.elepha.solutions.rto.dto.MetadataApiResponse;
 import com.elepha.solutions.rto.dto.RecentActivitiesResponse;
-import com.elepha.solutions.rto.dto.VehicleListResponseDTO;
 import com.elepha.solutions.rto.model.VehicleInfo;
 import com.elepha.solutions.rto.repository.VehicleInfoRepository;
+import com.elepha.solutions.rto.service.VehicleInfoService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.hibernate.envers.RevisionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.DeferredSecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,16 +34,14 @@ public class VehicleManagementController {
     private final VehicleInfoRepository vehicleInfoRepository;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final SecurityContextRepository httpSessionSecurityContextRepository;
+    private final VehicleInfoService vehicleInfoService;
 
-    private VehicleManagementController(VehicleInfoRepository vehicleInfoRepository, NamedParameterJdbcTemplate namedParameterJdbcTemplate, SecurityContextRepository securityContextRepository) {
+    private VehicleManagementController(VehicleInfoRepository vehicleInfoRepository, NamedParameterJdbcTemplate namedParameterJdbcTemplate
+            , SecurityContextRepository securityContextRepository, VehicleInfoService vehicleInfoService) {
         this.vehicleInfoRepository = vehicleInfoRepository;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
         this.httpSessionSecurityContextRepository = securityContextRepository;
-    }
-
-    @GetMapping("/ping")
-    public String ping() {
-        return "I'm alive";
+        this.vehicleInfoService = vehicleInfoService;
     }
 
     @PostMapping
@@ -54,11 +53,11 @@ public class VehicleManagementController {
     }
 
     @GetMapping
-    public ResponseEntity<VehicleListResponseDTO> fetchAllVehicleDetails(@RequestParam(name = "page", defaultValue = "1") int page, @RequestParam(name = "page_size", defaultValue = "10") int pageSize) {
-        List<VehicleInfo> vehicleInfoList = vehicleInfoRepository.findAll(PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.ASC, "vehicleNumber"))).toList();
-        long totalCount = vehicleInfoRepository.count();
-        log.atInfo().log("Fetched {} records for fetch request out of {} records", vehicleInfoList.size(), totalCount);
-        return ResponseEntity.ok(new VehicleListResponseDTO(vehicleInfoList, totalCount));
+    public ResponseEntity<Slice<VehicleInfo>> fetchAllVehicleDetails(@RequestParam(name = "page", defaultValue = "1") int page, @RequestParam(name = "page_size", defaultValue = "10") int pageSize) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Slice<VehicleInfo> vehicleInfoPage = vehicleInfoService.findAllVehiclesByUsername(authentication.getName(), page, pageSize);
+        log.info("Returning vehicle info page response for fetch request");
+        return ResponseEntity.ok(vehicleInfoPage);
     }
 
     @GetMapping("/recent-activity")

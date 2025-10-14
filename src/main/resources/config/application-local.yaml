@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/rto_db?currentSchema=public&sslmode=disable
+    username: rto_app_admin
+    password: ${db-password}
