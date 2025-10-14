@@ -50,7 +50,7 @@ public class ExpiryNotificationScheduledJob {
     }
 
     @Transactional
-    @Scheduled(cron = "0 0 6 * * *")
+    @Scheduled(cron = "0 0 10 * * *")
     public void fetchAndNotifyExpiringPermits() {
         LocalDate localDate = LocalDate.now().plusDays(30);
         // fetch expiring records
