@@ -1,3 +1,7 @@
 spring:
   liquibase:
     change-log: "classpath:/db/changelog/db.changelog-test.yaml"
+message-service:
+  host: message-api-sample.com
+  api-key: another-mock-key
+  license-number: another-mock-credential

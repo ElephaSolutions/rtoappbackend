@@ -14,9 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.DeferredSecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
@@ -33,23 +31,19 @@ public class VehicleManagementController {
 
     private final VehicleInfoRepository vehicleInfoRepository;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-    private final SecurityContextRepository httpSessionSecurityContextRepository;
     private final VehicleInfoService vehicleInfoService;
 
     private VehicleManagementController(VehicleInfoRepository vehicleInfoRepository, NamedParameterJdbcTemplate namedParameterJdbcTemplate
-            , SecurityContextRepository securityContextRepository, VehicleInfoService vehicleInfoService) {
+            , VehicleInfoService vehicleInfoService) {
         this.vehicleInfoRepository = vehicleInfoRepository;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
-        this.httpSessionSecurityContextRepository = securityContextRepository;
         this.vehicleInfoService = vehicleInfoService;
     }
 
     @PostMapping
     public ResponseEntity<VehicleInfo> saveVehicleInfo(@RequestBody VehicleInfo vehicleInfo, HttpServletRequest httpServletRequest) {
         log.atInfo().log("Received save vehicle request");
-        DeferredSecurityContext deferredSecurityContext = httpSessionSecurityContextRepository.loadDeferredContext(httpServletRequest);
-        vehicleInfo.setUsername(deferredSecurityContext.get().getAuthentication().getName());
-        return ResponseEntity.ok(vehicleInfoRepository.save(vehicleInfo));
+        return ResponseEntity.ok(vehicleInfoService.saveVehicleInDb(vehicleInfo, httpServletRequest));
     }
 
     @GetMapping

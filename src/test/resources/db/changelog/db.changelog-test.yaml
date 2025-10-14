@@ -32,6 +32,27 @@ databaseChangeLog:
             columns:
               - column:
                   name: username
+                  value: deadshot
+              - column:
+                  name: password
+                  value: myPassword
+              - column:
+                  name: enabled
+                  valueBoolean: true
+              - column:
+                  name: owner_name
+                  value: 'bruce wayne'
+              - column:
+                  name: agency_name
+                  value: 'wayne corporation'
+              - column:
+                  name: contact_number
+                  value: '1234567890'
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: username
                   value: superman
               - column:
                   name: password
