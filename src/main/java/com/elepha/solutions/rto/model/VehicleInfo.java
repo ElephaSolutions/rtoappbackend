@@ -29,6 +29,8 @@ public class VehicleInfo {
     @Column(name = "contact_no")
     private String contactNumber;
     private String username;
+    @Column(name = "ltt_flag")
+    private boolean lifeTimeTaxPaid;
 
     public String getVehicleNumber() {
         return vehicleNumber;
@@ -92,5 +94,13 @@ public class VehicleInfo {
 
     public void setContactNumber(String contactNumber) {
         this.contactNumber = contactNumber;
+    }
+
+    public boolean isLifeTimeTaxPaid() {
+        return lifeTimeTaxPaid;
+    }
+
+    public void setLifeTimeTaxPaid(boolean lifeTimeTaxPaid) {
+        this.lifeTimeTaxPaid = lifeTimeTaxPaid;
     }
 }
