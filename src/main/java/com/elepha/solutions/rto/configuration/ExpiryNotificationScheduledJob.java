@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,9 +51,11 @@ public class ExpiryNotificationScheduledJob {
     }
 
     @Transactional
-    @Scheduled(cron = "0 0 6 * * *")
+    @Scheduled(cron = "0 0 10 * * *", zone = "Asia/Calcutta")
     public void fetchAndNotifyExpiringPermits() {
+        log.info("Executing scheduled batch job to send message notification");
         LocalDate localDate = LocalDate.now().plusDays(30);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         // fetch expiring records
         try (Stream<VehicleInfo> expiringRecords = vehicleInfoRepository.fetchExpiringRecords(localDate)) {
             // fetch agency details for each expiring records
@@ -77,7 +80,7 @@ public class ExpiryNotificationScheduledJob {
                         allExpiringPermits.forEach(
                                 expiringPermit -> {
                                     log.info("Sending notification for record expiring with vehicle number {} for permit type {}", expiringRecordPair.getFirst().getVehicleNumber(), expiringPermit);
-                                    String templateParams = String.join(",", expiringRecordPair.getFirst().getVehicleNumber(), expiringPermit, localDate.toString(), expiringRecordPair.getSecond().ownerName(), expiringRecordPair.getSecond().contactNumber(), expiringRecordPair.getSecond().ownerName());
+                                    String templateParams = String.join(",", expiringRecordPair.getFirst().getVehicleNumber(), expiringPermit, formatter.format(localDate), expiringRecordPair.getSecond().ownerName(), expiringRecordPair.getSecond().contactNumber(), expiringRecordPair.getSecond().ownerName());
                                     ResponseEntity<String> response = restClient.get().uri(
                                             uriBuilder ->
                                                     uriBuilder

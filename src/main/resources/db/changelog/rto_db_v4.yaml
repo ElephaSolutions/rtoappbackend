@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: elepha-solutions
+      comment: Added the life time tax flag to support vehicles paid for ltt.
+      changes:
+        - addColumn:
+            tableName: vehicle_info
+            columns:
+              - column:
+                  name: ltt_flag
+                  type: boolean
+                  defaultValueBoolean: false
+        - addColumn:
+            tableName: vehicle_info_aud
+            columns:
+              - column:
+                  name: ltt_flag
+                  type: boolean
+        - addNotNullConstraint:
+            columnName: ltt_flag
+            defaultNullValue: false
+            tableName: vehicle_info
