@@ -1,33 +1,42 @@
 package com.elepha.solutions.rto.service.impl;
 
+import com.elepha.solutions.rto.dto.RecentActivitiesResponse;
 import com.elepha.solutions.rto.model.VehicleInfo;
 import com.elepha.solutions.rto.repository.VehicleInfoRepository;
 import com.elepha.solutions.rto.service.VehicleInfoService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.hibernate.envers.RevisionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.context.DeferredSecurityContext;
-import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.List;
 
 @Service
 public class VehicleInfoServiceImpl implements VehicleInfoService {
 
     private static final Logger log = LoggerFactory.getLogger(VehicleInfoServiceImpl.class);
+    private static final String FETCH_REVISION_HISTORY = "select inf.revtstmp, aud.vehicle_no, aud.revtype from vehicle_info_aud aud join revinfo inf on aud.rev = inf.rev where aud.username = :username order by inf.revtstmp desc limit 5";
 
     private final VehicleInfoRepository vehicleInfoRepository;
-    private final SecurityContextRepository securityContextRepository;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    private VehicleInfoServiceImpl(VehicleInfoRepository vehicleInfoRepository, SecurityContextRepository securityContextRepository) {
+    private VehicleInfoServiceImpl(VehicleInfoRepository vehicleInfoRepository, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.vehicleInfoRepository = vehicleInfoRepository;
-        this.securityContextRepository = securityContextRepository;
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
     @Override
-    public Slice<VehicleInfo> findAllVehiclesByUsername(String username, int pageNumber, int pageSize) {
+    public Slice<VehicleInfo> findAllVehiclesByUsername(int pageNumber, int pageSize) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         log.info("Fetching vehicles with pageNumber {} with pageSize {}", pageNumber, pageSize);
         Sort.TypedSort<VehicleInfo> vehicleInfoTypedSort = Sort.sort(VehicleInfo.class);
         Sort vehicleSort = vehicleInfoTypedSort.by(VehicleInfo::getVehicleNumber).ascending();
@@ -36,8 +45,25 @@ public class VehicleInfoServiceImpl implements VehicleInfoService {
 
     @Override
     public VehicleInfo saveVehicleInDb(VehicleInfo requestBody, HttpServletRequest httpServletRequest) {
-        DeferredSecurityContext deferredSecurityContext = securityContextRepository.loadDeferredContext(httpServletRequest);
-        requestBody.setUsername(deferredSecurityContext.get().getAuthentication().getName());
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        requestBody.setUsername(username);
         return vehicleInfoRepository.save(requestBody);
+    }
+
+    @Override
+    public List<RecentActivitiesResponse> fetchRecentActivities() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
+        sqlParameterSource.addValue("username", username);
+        log.info("Fetching last recent activity");
+        return namedParameterJdbcTemplate.query(
+                FETCH_REVISION_HISTORY,
+                sqlParameterSource,
+                (resultSet, rowIndex) -> new RecentActivitiesResponse(
+                        RevisionType.fromRepresentation(resultSet.getByte("revtype")),
+                        resultSet.getString("vehicle_no"),
+                        Timestamp.from(Instant.ofEpochMilli(resultSet.getLong("revtstmp")))
+                )
+        );
     }
 }

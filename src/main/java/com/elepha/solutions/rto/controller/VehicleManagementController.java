@@ -6,15 +6,11 @@ import com.elepha.solutions.rto.model.VehicleInfo;
 import com.elepha.solutions.rto.repository.VehicleInfoRepository;
 import com.elepha.solutions.rto.service.VehicleInfoService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.hibernate.envers.RevisionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
@@ -27,16 +23,12 @@ import java.util.List;
 public class VehicleManagementController {
 
     private static final Logger log = LoggerFactory.getLogger(VehicleManagementController.class);
-    private static final String FETCH_REVISION_HISTORY = "select inf.revtstmp, aud.vehicle_no, aud.revtype from vehicle_info_aud aud join revinfo inf on aud.rev = inf.rev order by inf.revtstmp desc limit 5";
 
     private final VehicleInfoRepository vehicleInfoRepository;
-    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final VehicleInfoService vehicleInfoService;
 
-    private VehicleManagementController(VehicleInfoRepository vehicleInfoRepository, NamedParameterJdbcTemplate namedParameterJdbcTemplate
-            , VehicleInfoService vehicleInfoService) {
+    private VehicleManagementController(VehicleInfoRepository vehicleInfoRepository, VehicleInfoService vehicleInfoService) {
         this.vehicleInfoRepository = vehicleInfoRepository;
-        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
         this.vehicleInfoService = vehicleInfoService;
     }
 
@@ -48,8 +40,7 @@ public class VehicleManagementController {
 
     @GetMapping
     public ResponseEntity<Slice<VehicleInfo>> fetchAllVehicleDetails(@RequestParam(name = "page", defaultValue = "1") int page, @RequestParam(name = "page_size", defaultValue = "10") int pageSize) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Slice<VehicleInfo> vehicleInfoPage = vehicleInfoService.findAllVehiclesByUsername(authentication.getName(), page, pageSize);
+        Slice<VehicleInfo> vehicleInfoPage = vehicleInfoService.findAllVehiclesByUsername(page, pageSize);
         log.info("Returning vehicle info page response for fetch request");
         return ResponseEntity.ok(vehicleInfoPage);
     }
@@ -57,8 +48,7 @@ public class VehicleManagementController {
     @GetMapping("/recent-activity")
     public ResponseEntity<List<RecentActivitiesResponse>> fetchRecentActivity() {
         log.atInfo().log("Received fetch recent activity request");
-        List<RecentActivitiesResponse> revisions = namedParameterJdbcTemplate.query(FETCH_REVISION_HISTORY, (rs, rowNum) -> new RecentActivitiesResponse(RevisionType.fromRepresentation(rs.getByte("revtype")), rs.getString("vehicle_no"), Timestamp.from(Instant.ofEpochMilli(rs.getLong("revtstmp")))));
-        return ResponseEntity.ok(revisions);
+        return ResponseEntity.ok(vehicleInfoService.fetchRecentActivities());
     }
 
     @GetMapping("/metadata")

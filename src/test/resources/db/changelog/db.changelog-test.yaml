@@ -53,6 +53,27 @@ databaseChangeLog:
             columns:
               - column:
                   name: username
+                  value: peacemaker
+              - column:
+                  name: password
+                  value: myPassword
+              - column:
+                  name: enabled
+                  valueBoolean: true
+              - column:
+                  name: owner_name
+                  value: 'john cena'
+              - column:
+                  name: agency_name
+                  value: 'DC Corp'
+              - column:
+                  name: contact_number
+                  value: '1234567890'
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: username
                   value: superman
               - column:
                   name: password
@@ -150,3 +171,48 @@ databaseChangeLog:
               - column:
                   name: username
                   value: superman
+        - insert:
+            tableName: revinfo
+            columns:
+              - column:
+                  name: rev
+                  value: 1000
+              - column:
+                  name: revtstmp
+                  valueNumeric: 1761061484133
+        - insert:
+            tableName: vehicle_info_aud
+            columns:
+              - column:
+                  name: vehicle_no
+                  value: RR-09-X-1237
+              - column:
+                  name: fc_date
+                  valueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: ins_date
+                  valueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: permit_date
+                  valueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: tax_date
+                  valueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: puc_date
+                  valueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: contact_no
+                  value: '1234567890'
+              - column:
+                  name: username
+                  value: peacemaker
+              - column:
+                  name: ltt_flag
+                  valueBoolean: false
+              - column:
+                  name: revtype
+                  valueNumeric: 0
+              - column:
+                  name: rev
+                  valueNumeric: 1000

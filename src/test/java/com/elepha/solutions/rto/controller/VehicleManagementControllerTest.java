@@ -1,7 +1,9 @@
 package com.elepha.solutions.rto.controller;
 
+import com.elepha.solutions.rto.dto.RecentActivitiesResponse;
 import com.elepha.solutions.rto.model.VehicleInfo;
 import com.elepha.solutions.rto.repository.VehicleInfoRepository;
+import org.hibernate.envers.RevisionType;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,5 +72,13 @@ class VehicleManagementControllerTest {
         ArgumentCaptor<VehicleInfo> vehicleInfoArgumentCaptor = ArgumentCaptor.forClass(VehicleInfo.class);
         verify(vehicleInfoRepository, times(1)).save(vehicleInfoArgumentCaptor.capture());
         assertThat(vehicleInfoArgumentCaptor.getValue().getUsername()).isEqualTo("deadshot");
+    }
+
+    @Test
+    @WithMockUser(username = "peacemaker", password = "myPassword", authorities = {"USER"})
+    void fetchRecentActivityDataFetchesDataForOnlyTheUserTest() {
+        List<RecentActivitiesResponse> response = webTestClient.get().uri("/api/v1/vehicle/recent-activity").exchange().expectStatus().isOk().expectBody(new ParameterizedTypeReference<List<RecentActivitiesResponse>>() {}).returnResult().getResponseBody();
+        assertThat(response).hasSize(1);
+        assertThat(response.get(0).revisionType()).isEqualTo(RevisionType.ADD);
     }
 }
