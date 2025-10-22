@@ -13,9 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @RestController
@@ -54,12 +51,8 @@ public class VehicleManagementController {
     @GetMapping("/metadata")
     public ResponseEntity<MetadataApiResponse> fetchMetadata() {
         log.atInfo().log("Received fetch metadata request");
-        Timestamp currentTimestamp = Timestamp.from(Instant.now().plus(30, ChronoUnit.DAYS));
         return ResponseEntity.ok(
-                new MetadataApiResponse(
-                        vehicleInfoRepository.count(),
-                        vehicleInfoRepository.countByFcExpiryDateBeforeOrInsuranceExpiryDateBeforeOrPermitExpiryDateBeforeOrTaxDueDateBeforeOrPollutionCertificateExpiryDateBefore(currentTimestamp, currentTimestamp, currentTimestamp, currentTimestamp, currentTimestamp)
-                )
+                vehicleInfoService.fetchMetadataForUsername()
         );
     }
 

@@ -1,5 +1,6 @@
 package com.elepha.solutions.rto.service.impl;
 
+import com.elepha.solutions.rto.dto.MetadataApiResponse;
 import com.elepha.solutions.rto.dto.RecentActivitiesResponse;
 import com.elepha.solutions.rto.model.VehicleInfo;
 import com.elepha.solutions.rto.repository.VehicleInfoRepository;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -36,7 +38,7 @@ public class VehicleInfoServiceImpl implements VehicleInfoService {
 
     @Override
     public Slice<VehicleInfo> findAllVehiclesByUsername(int pageNumber, int pageSize) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = getUsernameFromSecurityContext();
         log.info("Fetching vehicles with pageNumber {} with pageSize {}", pageNumber, pageSize);
         Sort.TypedSort<VehicleInfo> vehicleInfoTypedSort = Sort.sort(VehicleInfo.class);
         Sort vehicleSort = vehicleInfoTypedSort.by(VehicleInfo::getVehicleNumber).ascending();
@@ -45,14 +47,14 @@ public class VehicleInfoServiceImpl implements VehicleInfoService {
 
     @Override
     public VehicleInfo saveVehicleInDb(VehicleInfo requestBody, HttpServletRequest httpServletRequest) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = getUsernameFromSecurityContext();
         requestBody.setUsername(username);
         return vehicleInfoRepository.save(requestBody);
     }
 
     @Override
     public List<RecentActivitiesResponse> fetchRecentActivities() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = getUsernameFromSecurityContext();
         MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
         sqlParameterSource.addValue("username", username);
         log.info("Fetching last recent activity");
@@ -65,5 +67,19 @@ public class VehicleInfoServiceImpl implements VehicleInfoService {
                         Timestamp.from(Instant.ofEpochMilli(resultSet.getLong("revtstmp")))
                 )
         );
+    }
+
+    @Override
+    public MetadataApiResponse fetchMetadataForUsername() {
+        String username = getUsernameFromSecurityContext();
+        Timestamp currentTimestamp = Timestamp.from(Instant.now().plus(30, ChronoUnit.DAYS));
+        return new MetadataApiResponse(
+                vehicleInfoRepository.countByUsername(username),
+                vehicleInfoRepository.countExpiringRecordsForUsername(username, currentTimestamp)
+        );
+    }
+
+    private String getUsernameFromSecurityContext() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 }

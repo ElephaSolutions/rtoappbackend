@@ -1,24 +1,36 @@
 package com.elepha.solutions.rto.controller;
 
+import com.elepha.solutions.rto.dto.MetadataApiResponse;
 import com.elepha.solutions.rto.dto.RecentActivitiesResponse;
 import com.elepha.solutions.rto.model.VehicleInfo;
 import com.elepha.solutions.rto.repository.VehicleInfoRepository;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.hibernate.envers.RevisionType;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.util.Pair;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
@@ -80,5 +92,47 @@ class VehicleManagementControllerTest {
         List<RecentActivitiesResponse> response = webTestClient.get().uri("/api/v1/vehicle/recent-activity").exchange().expectStatus().isOk().expectBody(new ParameterizedTypeReference<List<RecentActivitiesResponse>>() {}).returnResult().getResponseBody();
         assertThat(response).hasSize(1);
         assertThat(response.get(0).revisionType()).isEqualTo(RevisionType.ADD);
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(VehicleInfoArgumentsProvider.class)
+    @WithMockUser(username = "harley_quinn", password = "myPassword", authorities = {"USER"})
+    void metadataApiReturnsCorrectCountsTest(ImmutableTriple<VehicleInfo, Integer, Integer> vehicleInfoTotalCountExpiringCountTuple) {
+        webTestClient.post().uri("/api/v1/vehicle").bodyValue(vehicleInfoTotalCountExpiringCountTuple.getLeft()).exchange().expectStatus().isOk();
+        MetadataApiResponse response = webTestClient.get().uri("/api/v1/vehicle/metadata").exchange().expectStatus().isOk().expectBody(MetadataApiResponse.class).returnResult().getResponseBody();
+        assertThat(response.totalVehicles()).isEqualTo(vehicleInfoTotalCountExpiringCountTuple.getMiddle().longValue());
+        assertThat(response.expiringSoon()).isEqualTo(vehicleInfoTotalCountExpiringCountTuple.getRight().longValue());
+    }
+
+    static class VehicleInfoArgumentsProvider implements ArgumentsProvider {
+
+        @Override
+        public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+            Timestamp nextMonthTimestamp = Timestamp.from(Instant.now().plus(25, ChronoUnit.DAYS));
+            Timestamp nextYearTimestamp = Timestamp.from(Instant.now().plus(365, ChronoUnit.DAYS));
+            return Stream.of(
+                    ImmutableTriple.of(buildAndReturnVehicleInfo(StringUtils.leftPad("1", 5, "0"), nextMonthTimestamp, nextYearTimestamp, nextYearTimestamp, nextYearTimestamp, nextYearTimestamp, StringUtils.leftPad("1", 10, "0"), false), 1, 1),
+                    ImmutableTriple.of(buildAndReturnVehicleInfo(StringUtils.leftPad("2", 5, "0"), nextYearTimestamp, nextMonthTimestamp, nextYearTimestamp, nextYearTimestamp, nextYearTimestamp, StringUtils.leftPad("2", 10, "0"), false), 2, 2),
+                    ImmutableTriple.of(buildAndReturnVehicleInfo(StringUtils.leftPad("3", 5, "0"), nextYearTimestamp, nextYearTimestamp, nextMonthTimestamp, nextYearTimestamp, nextYearTimestamp, StringUtils.leftPad("3", 10, "0"), false), 3, 3),
+                    ImmutableTriple.of(buildAndReturnVehicleInfo(StringUtils.leftPad("4", 5, "0"), nextYearTimestamp, nextYearTimestamp, nextYearTimestamp, nextMonthTimestamp, nextYearTimestamp, StringUtils.leftPad("4", 10, "0"), false), 4, 4),
+                    ImmutableTriple.of(buildAndReturnVehicleInfo(StringUtils.leftPad("5", 5, "0"), nextYearTimestamp, nextYearTimestamp, nextYearTimestamp, nextYearTimestamp, nextMonthTimestamp, StringUtils.leftPad("5", 10, "0"), false), 5, 5),
+                    ImmutableTriple.of(buildAndReturnVehicleInfo(StringUtils.leftPad("6", 5, "0"), nextYearTimestamp, nextYearTimestamp, nextYearTimestamp, nextYearTimestamp, nextYearTimestamp, StringUtils.leftPad("6", 10, "0"), false), 6, 5),
+                    ImmutableTriple.of(buildAndReturnVehicleInfo(StringUtils.leftPad("7", 5, "0"), nextYearTimestamp, nextYearTimestamp, nextYearTimestamp, null, nextYearTimestamp, StringUtils.leftPad("7", 10, "0"), true), 7, 5)
+            ).map(Arguments::of);
+        }
+
+        private VehicleInfo buildAndReturnVehicleInfo(String vehicleNumber, Timestamp fcExpiryDate, Timestamp insuranceExpiryDate
+                , Timestamp permitExpiryDate, Timestamp taxDueDate, Timestamp pollutionCertificateExpiryDate, String contactNumber, boolean isLifeTimeTaxPaid) {
+            VehicleInfo vehicleInfo = new VehicleInfo();
+            vehicleInfo.setVehicleNumber(vehicleNumber);
+            vehicleInfo.setFcExpiryDate(fcExpiryDate);
+            vehicleInfo.setInsuranceExpiryDate(insuranceExpiryDate);
+            vehicleInfo.setPermitExpiryDate(permitExpiryDate);
+            vehicleInfo.setTaxDueDate(taxDueDate);
+            vehicleInfo.setPollutionCertificateExpiryDate(pollutionCertificateExpiryDate);
+            vehicleInfo.setContactNumber(contactNumber);
+            vehicleInfo.setLifeTimeTaxPaid(isLifeTimeTaxPaid);
+            return vehicleInfo;
+        }
     }
 }
