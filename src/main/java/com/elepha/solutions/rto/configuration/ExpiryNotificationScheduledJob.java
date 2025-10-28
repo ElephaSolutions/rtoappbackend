@@ -53,9 +53,17 @@ public class ExpiryNotificationScheduledJob {
     @Transactional
     @Scheduled(cron = "0 0 10 * * *", zone = "Asia/Calcutta")
     public void fetchAndNotifyExpiringPermits() {
-        log.info("Executing scheduled batch job to send message notification");
-        LocalDate localDate = LocalDate.now().plusDays(30);
+        LocalDate dateAfter30Days = LocalDate.now().plusDays(30);
+        LocalDate dateAfter25Days = LocalDate.now().plusDays(25);
+        LocalDate dateAfter20Days = LocalDate.now().plusDays(20);
+        List<LocalDate> datesToSendNotificationFor = List.of(dateAfter20Days, dateAfter25Days, dateAfter30Days);
+        for (LocalDate date: datesToSendNotificationFor)
+            sendNotificationForExpiringRecords(date);
+    }
+
+    private void sendNotificationForExpiringRecords(LocalDate localDate) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        log.info("Executing scheduled batch job to send message notification for expiring records on date {}", localDate.format(formatter));
         // fetch expiring records
         try (Stream<VehicleInfo> expiringRecords = vehicleInfoRepository.fetchExpiringRecords(localDate)) {
             // fetch agency details for each expiring records
