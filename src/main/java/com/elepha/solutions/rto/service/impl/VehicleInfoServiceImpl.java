@@ -79,6 +79,15 @@ public class VehicleInfoServiceImpl implements VehicleInfoService {
         );
     }
 
+    @Override
+    public void deleteVehicleByVehicleNumber(String vehicleNumber) {
+        vehicleInfoRepository.removeByUsernameAndVehicleNumber(getUsernameFromSecurityContext(), vehicleNumber)
+                .ifPresentOrElse(
+                        vehicleInfo -> log.info("Deleted record with number {}", vehicleNumber),
+                        () -> log.info("Cannot find any record for the vehicle number {} and username", vehicleNumber)
+                );
+    }
+
     private String getUsernameFromSecurityContext() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }

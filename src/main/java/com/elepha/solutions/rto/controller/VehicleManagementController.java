@@ -3,7 +3,6 @@ package com.elepha.solutions.rto.controller;
 import com.elepha.solutions.rto.dto.MetadataApiResponse;
 import com.elepha.solutions.rto.dto.RecentActivitiesResponse;
 import com.elepha.solutions.rto.model.VehicleInfo;
-import com.elepha.solutions.rto.repository.VehicleInfoRepository;
 import com.elepha.solutions.rto.service.VehicleInfoService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -21,11 +20,9 @@ public class VehicleManagementController {
 
     private static final Logger log = LoggerFactory.getLogger(VehicleManagementController.class);
 
-    private final VehicleInfoRepository vehicleInfoRepository;
     private final VehicleInfoService vehicleInfoService;
 
-    private VehicleManagementController(VehicleInfoRepository vehicleInfoRepository, VehicleInfoService vehicleInfoService) {
-        this.vehicleInfoRepository = vehicleInfoRepository;
+    private VehicleManagementController(VehicleInfoService vehicleInfoService) {
         this.vehicleInfoService = vehicleInfoService;
     }
 
@@ -58,8 +55,7 @@ public class VehicleManagementController {
 
     @DeleteMapping
     public ResponseEntity<Void> deleteVehicleInfo(@RequestHeader(name = "vehicle_number") String vehicleNumber) {
-        vehicleInfoRepository.deleteById(vehicleNumber);
-        log.atInfo().log("Deleted vehicle record with number {}", vehicleNumber);
+        vehicleInfoService.deleteVehicleByVehicleNumber(vehicleNumber);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

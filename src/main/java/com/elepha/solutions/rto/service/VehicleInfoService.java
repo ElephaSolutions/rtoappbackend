@@ -14,4 +14,5 @@ public interface VehicleInfoService {
     VehicleInfo saveVehicleInDb(VehicleInfo requestBody, HttpServletRequest httpServletRequest);
     List<RecentActivitiesResponse> fetchRecentActivities();
     MetadataApiResponse fetchMetadataForUsername();
+    void deleteVehicleByVehicleNumber(String vehicleNumber);
 }

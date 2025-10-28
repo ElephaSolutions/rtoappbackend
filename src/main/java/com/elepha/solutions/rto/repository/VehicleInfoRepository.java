@@ -9,9 +9,11 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Repository
@@ -25,4 +27,6 @@ public interface VehicleInfoRepository extends PagingAndSortingRepository<Vehicl
             value = "select count(v) from VehicleInfo v where v.username = :username and (v.fcExpiryDate < :expiring_date or v.insuranceExpiryDate < :expiring_date or v.permitExpiryDate < :expiring_date or v.taxDueDate < :expiring_date or v.pollutionCertificateExpiryDate < :expiring_date)"
     )
     long countExpiringRecordsForUsername(@Param(value = "username") String username, @Param(value = "expiring_date") Timestamp expiringDate);
+    @Transactional
+    Optional<VehicleInfo> removeByUsernameAndVehicleNumber(String username, String vehicleNumber);
 }

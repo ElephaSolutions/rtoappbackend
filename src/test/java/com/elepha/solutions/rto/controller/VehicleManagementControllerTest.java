@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.hibernate.envers.RevisionType;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -17,6 +18,8 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.util.Pair;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -39,6 +42,7 @@ import static org.mockito.Mockito.verify;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles(value = {"unit"})
+@ExtendWith(value = OutputCaptureExtension.class)
 class VehicleManagementControllerTest {
 
     @Autowired
@@ -102,6 +106,20 @@ class VehicleManagementControllerTest {
         MetadataApiResponse response = webTestClient.get().uri("/api/v1/vehicle/metadata").exchange().expectStatus().isOk().expectBody(MetadataApiResponse.class).returnResult().getResponseBody();
         assertThat(response.totalVehicles()).isEqualTo(vehicleInfoTotalCountExpiringCountTuple.getMiddle().longValue());
         assertThat(response.expiringSoon()).isEqualTo(vehicleInfoTotalCountExpiringCountTuple.getRight().longValue());
+    }
+
+    @Test
+    @WithMockUser(username = "killer_croc", password = "myPassword", authorities = {"USER"})
+    void deleteApiPrintsDeletedSuccessfullyDeletedTest(CapturedOutput capturedOutput) {
+        webTestClient.delete().uri("/api/v1/vehicle").header("vehicle_number", "UP56CA0999").exchange().expectStatus().isOk();
+        assertThat(capturedOutput.getAll()).contains("Deleted record with number UP56CA0999");
+    }
+
+    @Test
+    @WithMockUser(username = "killer_croc", password = "myPassword", authorities = {"USER"})
+    void deleteApiPrintsNoRecordDeletedTest(CapturedOutput capturedOutput) {
+        webTestClient.delete().uri("/api/v1/vehicle").header("vehicle_number", "UP56CA0990").exchange().expectStatus().isOk();
+        assertThat(capturedOutput.getAll()).contains("Cannot find any record for the vehicle number UP56CA0990 and username");
     }
 
     static class VehicleInfoArgumentsProvider implements ArgumentsProvider {
