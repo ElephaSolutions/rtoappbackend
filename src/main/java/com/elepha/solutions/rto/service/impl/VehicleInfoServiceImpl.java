@@ -27,6 +27,7 @@ public class VehicleInfoServiceImpl implements VehicleInfoService {
 
     private static final Logger log = LoggerFactory.getLogger(VehicleInfoServiceImpl.class);
     private static final String FETCH_REVISION_HISTORY = "select inf.revtstmp, aud.vehicle_no, aud.revtype from vehicle_info_aud aud join revinfo inf on aud.rev = inf.rev where aud.username = :username order by inf.revtstmp desc limit 5";
+    private static final String FETCH_AGENCY_NAME_FOR_USER = "select agency_name from users where username = :username";
 
     private final VehicleInfoRepository vehicleInfoRepository;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -73,9 +74,12 @@ public class VehicleInfoServiceImpl implements VehicleInfoService {
     public MetadataApiResponse fetchMetadataForUsername() {
         String username = getUsernameFromSecurityContext();
         Timestamp currentTimestamp = Timestamp.from(Instant.now().plus(30, ChronoUnit.DAYS));
+        MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+        parameterSource.addValue("username", username);
         return new MetadataApiResponse(
                 vehicleInfoRepository.countByUsername(username),
-                vehicleInfoRepository.countExpiringRecordsForUsername(username, currentTimestamp)
+                vehicleInfoRepository.countExpiringRecordsForUsername(username, currentTimestamp),
+                namedParameterJdbcTemplate.queryForObject(FETCH_AGENCY_NAME_FOR_USER, parameterSource, String.class)
         );
     }
 

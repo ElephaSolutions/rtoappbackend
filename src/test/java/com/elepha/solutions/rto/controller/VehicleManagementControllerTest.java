@@ -106,6 +106,7 @@ class VehicleManagementControllerTest {
         MetadataApiResponse response = webTestClient.get().uri("/api/v1/vehicle/metadata").exchange().expectStatus().isOk().expectBody(MetadataApiResponse.class).returnResult().getResponseBody();
         assertThat(response.totalVehicles()).isEqualTo(vehicleInfoTotalCountExpiringCountTuple.getMiddle().longValue());
         assertThat(response.expiringSoon()).isEqualTo(vehicleInfoTotalCountExpiringCountTuple.getRight().longValue());
+        assertThat(response.agencyName()).isEqualTo("daily planet");
     }
 
     @Test
