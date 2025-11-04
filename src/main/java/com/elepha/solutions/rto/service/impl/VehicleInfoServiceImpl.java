@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.hibernate.envers.RevisionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
@@ -26,7 +27,7 @@ import java.util.List;
 public class VehicleInfoServiceImpl implements VehicleInfoService {
 
     private static final Logger log = LoggerFactory.getLogger(VehicleInfoServiceImpl.class);
-    private static final String FETCH_REVISION_HISTORY = "select inf.revtstmp, aud.vehicle_no, aud.revtype from vehicle_info_aud aud join revinfo inf on aud.rev = inf.rev where aud.username = :username order by inf.revtstmp desc limit 5";
+    private static final String FETCH_REVISION_HISTORY = "select inf.timestamp, aud.vehicle_no, aud.revtype from vehicle_info_aud aud join revinfo inf on aud.rev = inf.id where inf.username = :username order by inf.timestamp desc limit 5";
     private static final String FETCH_AGENCY_NAME_FOR_USER = "select agency_name from users where username = :username";
 
     private final VehicleInfoRepository vehicleInfoRepository;
@@ -38,7 +39,7 @@ public class VehicleInfoServiceImpl implements VehicleInfoService {
     }
 
     @Override
-    public Slice<VehicleInfo> findAllVehiclesByUsername(int pageNumber, int pageSize) {
+    public Page<VehicleInfo> findAllVehiclesByUsername(int pageNumber, int pageSize) {
         String username = getUsernameFromSecurityContext();
         log.info("Fetching vehicles with pageNumber {} with pageSize {}", pageNumber, pageSize);
         Sort.TypedSort<VehicleInfo> vehicleInfoTypedSort = Sort.sort(VehicleInfo.class);
@@ -65,7 +66,7 @@ public class VehicleInfoServiceImpl implements VehicleInfoService {
                 (resultSet, rowIndex) -> new RecentActivitiesResponse(
                         RevisionType.fromRepresentation(resultSet.getByte("revtype")),
                         resultSet.getString("vehicle_no"),
-                        Timestamp.from(Instant.ofEpochMilli(resultSet.getLong("revtstmp")))
+                        Timestamp.from(Instant.ofEpochMilli(resultSet.getLong("timestamp")))
                 )
         );
     }

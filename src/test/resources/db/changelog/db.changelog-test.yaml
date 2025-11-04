@@ -244,11 +244,14 @@ databaseChangeLog:
             tableName: revinfo
             columns:
               - column:
-                  name: rev
+                  name: id
                   value: 1000
               - column:
-                  name: revtstmp
+                  name: timestamp
                   valueNumeric: 1761061484133
+              - column:
+                  name: username
+                  value: peacemaker
         - insert:
             tableName: vehicle_info_aud
             columns:

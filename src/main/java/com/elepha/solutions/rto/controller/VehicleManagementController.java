@@ -34,7 +34,7 @@ public class VehicleManagementController {
 
     @GetMapping
     public ResponseEntity<Slice<VehicleInfo>> fetchAllVehicleDetails(@RequestParam(name = "page", defaultValue = "1") int page, @RequestParam(name = "page_size", defaultValue = "10") int pageSize) {
-        Slice<VehicleInfo> vehicleInfoPage = vehicleInfoService.findAllVehiclesByUsername(page, pageSize);
+        Page<VehicleInfo> vehicleInfoPage = vehicleInfoService.findAllVehiclesByUsername(page, pageSize);
         log.info("Returning vehicle info page response for fetch request");
         return ResponseEntity.ok(vehicleInfoPage);
     }

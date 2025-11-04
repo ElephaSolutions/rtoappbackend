@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: elepha-solutions
+      comment: Added column to track username in envers table
+      changes:
+        - addColumn:
+            tableName: revinfo
+            columns:
+              - column:
+                  name: username
+                  type: VARCHAR
+                  value: baskar
+                  constraints:
+                    nullable: false
+                    foreignKeyName: revinfo_fk
+                    referencedColumnNames: username
+                    referencedTableName: users
+        - renameColumn:
+            newColumnName: timestamp
+            oldColumnName: revtstmp
+            tableName: revinfo
+        - renameColumn:
+            newColumnName: id
+            oldColumnName: rev
+            tableName: revinfo
+  - changeSet:
+      id: 2
+      author: elepha-solutions
+      comment: Renamed sequence name
+      dbms: postgresql
+      changes:
+        - renameSequence:
+            newSequenceName: REVISION_GENERATOR
+            oldSequenceName: revinfo_seq
