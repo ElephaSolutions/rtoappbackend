@@ -120,7 +120,7 @@ public class ExpiryNotificationScheduledJob {
             allExpiringPermits.add("Insurance");
         if (vehicleInfo.getPermitExpiryDate().toLocalDateTime().toLocalDate().equals(checkDate))
             allExpiringPermits.add("Permit");
-        if (vehicleInfo.getTaxDueDate().toLocalDateTime().toLocalDate().equals(checkDate))
+        if (vehicleInfo.getTaxDueDate() != null && vehicleInfo.getTaxDueDate().toLocalDateTime().toLocalDate().equals(checkDate))
             allExpiringPermits.add("Tax");
         if (vehicleInfo.getPollutionCertificateExpiryDate().toLocalDateTime().toLocalDate().equals(checkDate))
             allExpiringPermits.add("PUC");
