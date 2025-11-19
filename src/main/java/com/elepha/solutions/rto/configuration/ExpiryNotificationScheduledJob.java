@@ -88,7 +88,7 @@ public class ExpiryNotificationScheduledJob {
                         allExpiringPermits.forEach(
                                 expiringPermit -> {
                                     log.info("Sending notification for record expiring with vehicle number {} for permit type {}", expiringRecordPair.getFirst().getVehicleNumber(), expiringPermit);
-                                    String templateParams = String.join(",", expiringRecordPair.getFirst().getVehicleNumber(), expiringPermit, formatter.format(localDate), expiringRecordPair.getSecond().ownerName(), expiringRecordPair.getSecond().contactNumber(), expiringRecordPair.getSecond().ownerName());
+                                    String templateParams = String.join(",", expiringRecordPair.getFirst().getVehicleNumber(), expiringPermit, formatter.format(localDate), expiringRecordPair.getSecond().contactNumber());
                                     ResponseEntity<String> response = restClient.get().uri(
                                             uriBuilder ->
                                                     uriBuilder
@@ -96,7 +96,7 @@ public class ExpiryNotificationScheduledJob {
                                                             .path("/sendtemplate.php")
                                                             .queryParam("LicenseNumber", this.licenseNumber)
                                                             .queryParam("APIKey", this.messageServiceApiKey)
-                                                            .queryParam("Template", "bac1")
+                                                            .queryParam("Template", "vfg")
                                                             .queryParam("Contact", expiringRecordPair.getFirst().getContactNumber())
                                                             .queryParam("Param", templateParams).build()
                                     ).retrieve().toEntity(String.class);
@@ -120,7 +120,7 @@ public class ExpiryNotificationScheduledJob {
             allExpiringPermits.add("Insurance");
         if (vehicleInfo.getPermitExpiryDate().toLocalDateTime().toLocalDate().equals(checkDate))
             allExpiringPermits.add("Permit");
-        if (vehicleInfo.getTaxDueDate().toLocalDateTime().toLocalDate().equals(checkDate))
+        if (vehicleInfo.getTaxDueDate() != null && vehicleInfo.getTaxDueDate().toLocalDateTime().toLocalDate().equals(checkDate))
             allExpiringPermits.add("Tax");
         if (vehicleInfo.getPollutionCertificateExpiryDate().toLocalDateTime().toLocalDate().equals(checkDate))
             allExpiringPermits.add("PUC");
