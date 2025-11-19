@@ -53,6 +53,7 @@ databaseChangeLog:
                   startWith: 1
                   constraints:
                     primaryKey: true
+                    nullable: false
               - column:
                   name: revtstmp
                   type: BIGINT
@@ -66,6 +67,8 @@ databaseChangeLog:
                   name: vehicle_no
                   type: VARCHAR
                   remarks: The unique vehicle number
+                  constraints:
+                    nullable: false
               - column:
                   name: fc_date
                   type: TIMESTAMP
@@ -98,6 +101,7 @@ databaseChangeLog:
                     foreignKeyName: rev_foreign_key
                     referencedColumnNames: rev
                     referencedTableName: revinfo
+                    nullable: false
               - column:
                   name: revtype
                   type: TINYINT
