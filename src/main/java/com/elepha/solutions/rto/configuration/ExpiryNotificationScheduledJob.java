@@ -65,7 +65,7 @@ public class ExpiryNotificationScheduledJob {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         log.info("Executing scheduled batch job to send message notification for expiring records on date {}", localDate.format(formatter));
         // fetch expiring records
-        try (Stream<VehicleInfo> expiringRecords = vehicleInfoRepository.fetchExpiringRecords(localDate)) {
+        try (Stream<VehicleInfo> expiringRecords = vehicleInfoRepository.fetchExpiringRecords(List.of("baskar"), localDate)) {
             // fetch agency details for each expiring records
             expiringRecords
                     .map(expiringVehicleInfo -> {
