@@ -1,0 +1,44 @@
+openapi: 3.1.1
+info:
+  title: RTO Backend API
+  summary: Backend API contract for Elepha solutions RTO application
+  description: API provides clients to manage/track vehicle documents validity
+  contact:
+    name: Elepha solutions
+    url: https://www.elephasolutions.com/
+    email: elephasolutions@gmail.com
+  version: v1
+servers:
+  - url: https://rtoappbyourself.onrender.com/api
+    description: Production instance deployed in render
+  - url: https://localhost:8080/api
+    description: Local instance URL
+paths:
+  /login:
+    summary: Endpoint for clients to authenticate and create user sessions
+    description: Endpoint will authenticate client against known username and password and create a session for them
+    post:
+      summary: Endpoint for clients to authenticate and create user sessions
+      description: Endpoint will authenticate client against known username and password and create a session for them
+      operationId: authenticateAndLogin
+      requestBody:
+        description: Body with username and password passed from the client
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequestDTO'
+        required: true
+      responses:
+        200:
+          description: Authenticated and logged in successfully.
+        401:
+          description: Unauthenticated
+components:
+  schemas:
+    LoginRequestDTO:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
