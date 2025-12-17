@@ -94,16 +94,6 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.springframework</groupId>-->
-<!--            <artifactId>spring-webflux</artifactId>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-webmvc-test</artifactId>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
     </dependencies>
 
     <dependencyManagement>
@@ -152,6 +142,12 @@
                             <apiPackage>com.elepha.solutions.rto.controller</apiPackage>
                             <packageName>com.elepha.solutions.rto</packageName>
                             <addCompileSourceRoot>true</addCompileSourceRoot>
+                            <typeMappings>
+                                <typeMapping>vehicleInfo=VehicleInfo</typeMapping>
+                            </typeMappings>
+                            <importMappings>
+                                <importMapping>VehicleInfo=com.elepha.solutions.rto.model.VehicleInfo</importMapping>
+                            </importMappings>
                             <configOptions>
                                 <generateBuilders>true</generateBuilders>
                                 <interfaceOnly>true</interfaceOnly>
@@ -163,6 +159,7 @@
                                 <useSpringBoot3>true</useSpringBoot3>
                                 <useSpringController>true</useSpringController>
                                 <sourceFolder>.</sourceFolder>
+                                <useTags>true</useTags>
                             </configOptions>
                         </configuration>
                     </execution>
