@@ -36,6 +36,7 @@ public class SecurityConfiguration {
         http.authorizeHttpRequests(
                 authorize -> authorize
                         .requestMatchers("/api/login").permitAll()
+                        .requestMatchers("/api/signUp").permitAll()
                         .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
                         .anyRequest().authenticated()
         ).securityContext(
