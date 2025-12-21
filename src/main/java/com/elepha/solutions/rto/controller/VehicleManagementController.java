@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,11 +23,12 @@ public class VehicleManagementController {
 
     private final VehicleInfoService vehicleInfoService;
 
-    private VehicleManagementController(VehicleInfoService vehicleInfoService) {
+    public VehicleManagementController(VehicleInfoService vehicleInfoService) {
         this.vehicleInfoService = vehicleInfoService;
     }
 
     @PostMapping
+    @PreAuthorize(value = "@mockUserThrottler.throttleApiRequest(#root)")
     public ResponseEntity<VehicleInfo> saveVehicleInfo(@RequestBody VehicleInfo vehicleInfo, HttpServletRequest httpServletRequest) {
         log.atInfo().log("Received save vehicle request");
         return ResponseEntity.ok(vehicleInfoService.saveVehicleInDb(vehicleInfo, httpServletRequest));

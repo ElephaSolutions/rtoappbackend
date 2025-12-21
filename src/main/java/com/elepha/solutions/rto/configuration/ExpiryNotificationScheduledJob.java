@@ -3,8 +3,6 @@ package com.elepha.solutions.rto.configuration;
 import com.elepha.solutions.rto.dto.AgencyDetailsDTO;
 import com.elepha.solutions.rto.model.VehicleInfo;
 import com.elepha.solutions.rto.repository.VehicleInfoRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +15,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -37,11 +36,11 @@ public class ExpiryNotificationScheduledJob {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final String messageServiceApiKey;
     private final String licenseNumber;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper objectMapper;
 
     public ExpiryNotificationScheduledJob(RestClient.Builder restClientBuilder, VehicleInfoRepository vehicleInfoRepository
             , NamedParameterJdbcTemplate namedParameterJdbcTemplate, @Value("${message-service.host}") String messageServiceHost
-            , @Value("${message-service.api-key}") String messageServiceApiKey, @Value("${message-service.license-number}") String licenseNumber, ObjectMapper objectMapper) {
+            , @Value("${message-service.api-key}") String messageServiceApiKey, @Value("${message-service.license-number}") String licenseNumber, JsonMapper objectMapper) {
         this.restClient = restClientBuilder.baseUrl(messageServiceHost).build();
         this.vehicleInfoRepository = vehicleInfoRepository;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
@@ -65,7 +64,7 @@ public class ExpiryNotificationScheduledJob {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         log.info("Executing scheduled batch job to send message notification for expiring records on date {}", localDate.format(formatter));
         // fetch expiring records
-        try (Stream<VehicleInfo> expiringRecords = vehicleInfoRepository.fetchExpiringRecords(localDate)) {
+        try (Stream<VehicleInfo> expiringRecords = vehicleInfoRepository.fetchExpiringRecords(List.of("baskar", "admin"), localDate)) {
             // fetch agency details for each expiring records
             expiringRecords
                     .map(expiringVehicleInfo -> {
@@ -100,12 +99,8 @@ public class ExpiryNotificationScheduledJob {
                                                             .queryParam("Contact", expiringRecordPair.getFirst().getContactNumber())
                                                             .queryParam("Param", templateParams).build()
                                     ).retrieve().toEntity(String.class);
-                                    try {
-                                        Map parsedResponse = this.objectMapper.readValue(response.getBody(), Map.class);
-                                        log.info("Received response from message API {}", parsedResponse.get("ApiResponse"));
-                                    } catch (JsonProcessingException e) {
-                                        log.error("Error parsing Message Notification API response");
-                                    }
+                                    Map parsedResponse = this.objectMapper.readValue(response.getBody(), Map.class);
+                                    log.info("Received response from message API {}", parsedResponse.get("ApiResponse"));
                                 }
                         );
                     });

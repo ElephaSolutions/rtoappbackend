@@ -1,0 +1,105 @@
+openapi: 3.1.1
+info:
+  title: RTO Backend API
+  summary: Backend API contract for Elepha solutions RTO application
+  description: API provides clients to manage/track vehicle documents validity
+  contact:
+    name: Elepha solutions
+    url: https://www.elephasolutions.com/
+    email: elephasolutions@gmail.com
+  version: v1
+servers:
+  - url: https://rtoappbyourself.onrender.com/api
+    description: Production instance deployed in render
+  - url: https://localhost:8080/api
+    description: Local instance URL
+paths:
+  /login:
+    summary: Endpoint for clients to authenticate and create user sessions
+    description: Endpoint will authenticate client against known username and password and create a session for them
+    post:
+      summary: Endpoint for clients to authenticate and create user sessions
+      description: Endpoint will authenticate client against known username and password and create a session for them
+      operationId: authenticateAndLogin
+      tags:
+        - login
+      requestBody:
+        description: Body with username and password passed from the client
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequestDTO'
+        required: true
+      responses:
+        200:
+          description: Authenticated and logged in successfully.
+        401:
+          description: Unauthenticated
+  /v1/vehicle:
+    summary: Endpoints to provide CRUD operations for managing vehicles.
+    description: Endpoints to provide CRUD operations for managing vehicles.
+    post:
+      summary: Endpoint to save/update vehicle details
+      description: Endpoint will save the vehicle details or will update the vehicle if a vehicle with the same number exists already
+      operationId: saveOrUpdateVehicle
+      tags:
+        - vehicle-management
+      requestBody:
+        description: Body with vehicle details to save or update
+        content:
+          application/json:
+            schema:
+              type: vehicleInfo
+        required: true
+      responses:
+        200:
+          description: saved/updated the vehicle info successfully.
+          content:
+            application/json:
+              schema:
+                type: vehicleInfo
+        401:
+          description: Unauthenticated
+    get:
+      summary: Endpoint to fetch a page from vehicle list based on filter passed
+      description: Endpoint to fetch a page from vehicle list based on filter passed
+      operationId: fetchVehicles
+      tags:
+        - vehicle-management
+      parameters:
+        - name: page
+          in: header
+          description: The page number to fetch
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: header
+          description: Number of records to be fetch in a single page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+      responses:
+        200:
+          description: Authenticated and logged in successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: vehicleInfo
+        401:
+          description: Unauthenticated
+components:
+  schemas:
+    LoginRequestDTO:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string

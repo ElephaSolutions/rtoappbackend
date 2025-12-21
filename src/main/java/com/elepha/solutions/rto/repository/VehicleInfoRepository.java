@@ -13,14 +13,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 @Repository
 public interface VehicleInfoRepository extends PagingAndSortingRepository<VehicleInfo, String>, CrudRepository<VehicleInfo, String> {
 
-    @NativeQuery(value = "select * from vehicle_info where date_trunc('day', fc_date) = :check_date or date_trunc('day', ins_date) = :check_date or date_trunc('day', permit_date) = :check_date or date_trunc('day', tax_date) = :check_date or date_trunc('day', puc_date) = :check_date")
-    Stream<VehicleInfo> fetchExpiringRecords(@Param(value = "check_date") LocalDate checkDate);
+    @NativeQuery(value = "select * from vehicle_info where username in :username and (date_trunc('day', fc_date) = :check_date or date_trunc('day', ins_date) = :check_date or date_trunc('day', permit_date) = :check_date or date_trunc('day', tax_date) = :check_date or date_trunc('day', puc_date) = :check_date)")
+    Stream<VehicleInfo> fetchExpiringRecords(@Param(value = "username") List<String> username, @Param(value = "check_date") LocalDate checkDate);
     Page<VehicleInfo> findByUsername(String username, Pageable pageable);
     long countByUsername(String username);
     @Query(

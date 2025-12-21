@@ -4,12 +4,12 @@ import com.elepha.solutions.rto.model.enver.listener.UsernameTrackingRevisionEnt
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import org.hibernate.envers.RevisionEntity;
-import org.hibernate.envers.enhanced.SequenceIdRevisionEntity;
+import org.hibernate.envers.enhanced.SequenceIdRevisionMapping;
 
 @Entity
 @Table(name = "revinfo")
 @RevisionEntity(value = UsernameTrackingRevisionEntityListener.class)
-public class UsernameTrackingRevisionEntity extends SequenceIdRevisionEntity {
+public class UsernameTrackingRevisionEntity extends SequenceIdRevisionMapping {
     String username;
 
     public String getUsername() {
