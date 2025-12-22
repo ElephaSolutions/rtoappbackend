@@ -48,6 +48,15 @@ public class VehicleInfoServiceImpl implements VehicleInfoService {
     }
 
     @Override
+    public Page<VehicleInfo> searchVehicleInfo(int pageNumber, int pageSize, String searchTerm) {
+        String username = getUsernameFromSecurityContext();
+        log.info("Searching vehicles with pageNumber {} with pageSize {}", pageNumber, pageSize);
+        Sort.TypedSort<VehicleInfo> vehicleInfoTypedSort = Sort.sort(VehicleInfo.class);
+        Sort vehicleSort = vehicleInfoTypedSort.by(VehicleInfo::getVehicleNumber).ascending();
+        return vehicleInfoRepository.searchByUsernameAndSearchTerm(username, searchTerm, PageRequest.of(Math.max(0, pageNumber - 1), pageSize, vehicleSort));
+    }
+
+    @Override
     public VehicleInfo saveVehicleInDb(VehicleInfo requestBody, HttpServletRequest httpServletRequest) {
         String username = getUsernameFromSecurityContext();
         requestBody.setUsername(username);

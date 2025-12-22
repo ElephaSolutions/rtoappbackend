@@ -12,6 +12,7 @@ import java.util.List;
 public interface VehicleInfoService {
 
     Page<VehicleInfo> findAllVehiclesByUsername(int pageNumber, int pageSize);
+    Page<VehicleInfo> searchVehicleInfo(int pageNumber, int pageSize, String searchTerm);
     VehicleInfo saveVehicleInDb(VehicleInfo requestBody, HttpServletRequest httpServletRequest);
     List<RecentActivitiesResponse> fetchRecentActivities();
     MetadataApiResponse fetchMetadataForUsername();

@@ -133,6 +133,27 @@ databaseChangeLog:
                   name: contact_number
                   value: '1234567890'
         - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: username
+                  value: lex_luthor
+              - column:
+                  name: password
+                  value: myPassword
+              - column:
+                  name: enabled
+                  valueBoolean: true
+              - column:
+                  name: owner_name
+                  value: 'Lex Luthor'
+              - column:
+                  name: agency_name
+                  value: 'Luthor Corp'
+              - column:
+                  name: contact_number
+                  value: '1234567890'
+        - insert:
             tableName: vehicle_info
             columns:
               - column:
@@ -240,6 +261,87 @@ databaseChangeLog:
               - column:
                   name: username
                   value: killer_croc
+        - insert:
+            tableName: vehicle_info
+            columns:
+              - column:
+                  name: vehicle_no
+                  value: LX56CA1299
+              - column:
+                  name: fc_date
+                  valueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: ins_date
+                  valueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: permit_date
+                  valueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: tax_date
+                  valueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: puc_date
+                  valueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: contact_no
+                  value: '2234567890'
+              - column:
+                  name: username
+                  value: lex_luthor
+        - insert:
+            tableName: vehicle_info
+            columns:
+              - column:
+                  name: vehicle_no
+                  value: LX56CA2299
+              - column:
+                  name: fc_date
+                  valueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: ins_date
+                  valueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: permit_date
+                  valueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: tax_date
+                  valueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: puc_date
+                  valueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: contact_no
+                  value: '1234227890'
+              - column:
+                  name: username
+                  value: lex_luthor
+        - insert:
+            tableName: vehicle_info
+            columns:
+              - column:
+                  name: vehicle_no
+                  value: LX56CA2399
+              - column:
+                  name: fc_date
+                  valueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: ins_date
+                  valueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: permit_date
+                  valueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: tax_date
+                  valueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: puc_date
+                  valueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: contact_no
+                  value: '2234567890'
+              - column:
+                  name: username
+                  value: lex_luthor
         - insert:
             tableName: revinfo
             columns:

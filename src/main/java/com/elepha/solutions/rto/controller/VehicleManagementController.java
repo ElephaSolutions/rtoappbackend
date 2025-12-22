@@ -28,7 +28,7 @@ public class VehicleManagementController {
     }
 
     @PostMapping
-    @PreAuthorize(value = "@mockUserThrottler.throttleApiRequest(#root)")
+//    @PreAuthorize(value = "@mockUserThrottler.throttleApiRequest(#root)")
     public ResponseEntity<VehicleInfo> saveVehicleInfo(@RequestBody VehicleInfo vehicleInfo, HttpServletRequest httpServletRequest) {
         log.atInfo().log("Received save vehicle request");
         return ResponseEntity.ok(vehicleInfoService.saveVehicleInDb(vehicleInfo, httpServletRequest));
@@ -38,6 +38,14 @@ public class VehicleManagementController {
     public ResponseEntity<Slice<VehicleInfo>> fetchAllVehicleDetails(@RequestParam(name = "page", defaultValue = "1") int page, @RequestParam(name = "page_size", defaultValue = "10") int pageSize) {
         Page<VehicleInfo> vehicleInfoPage = vehicleInfoService.findAllVehiclesByUsername(page, pageSize);
         log.info("Returning vehicle info page response for fetch request");
+        return ResponseEntity.ok(vehicleInfoPage);
+    }
+
+    @GetMapping("/{searchTerm}")
+    public ResponseEntity<Slice<VehicleInfo>> searchVehicleInfo(@RequestParam(name = "page", defaultValue = "1") int page, @RequestParam(name = "page_size", defaultValue = "10") int pageSize, @PathVariable String searchTerm) {
+        log.atInfo().log("Received search request");
+        Page<VehicleInfo> vehicleInfoPage = vehicleInfoService.searchVehicleInfo(page, pageSize, searchTerm);
+        log.atInfo().log("Returning vehicle info page response for search request");
         return ResponseEntity.ok(vehicleInfoPage);
     }
 

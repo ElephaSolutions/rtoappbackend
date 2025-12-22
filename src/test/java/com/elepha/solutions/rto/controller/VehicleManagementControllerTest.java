@@ -26,6 +26,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.net.URI;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -68,6 +69,17 @@ class VehicleManagementControllerTest {
         assertThat(content).hasSize(1);
         assertThat(content.stream().allMatch(contentRecord -> contentRecord.get("username").equals("batman"))).isTrue();
         assertThat((boolean)response.get("last")).isFalse();
+    }
+
+    @Test
+    @WithMockUser(username = "lex_luthor", password = "myPassword", authorities = {"USER"})
+    void searchBySearchTermFindsRecordWithContainingClauseTest() {
+        Map<String, Object> response = webTestClient.get().uri("/api/v1/vehicle/12").exchange()
+                .expectStatus().isOk().expectBody(new ParameterizedTypeReference<Map<String, Object>>() {}).returnResult().getResponseBody();
+        List<Map<String, String>> content = (List<Map<String, String>>) response.get("content");
+        assertThat(content).hasSize(2);
+        assertThat(content.stream().allMatch(contentRecord -> contentRecord.get("username").equals("lex_luthor"))).isTrue();
+        assertThat(content.stream().allMatch(contentRecord -> contentRecord.get("contactNumber").contains("12") || contentRecord.get("vehicleNumber").contains("12"))).isTrue();
     }
 
     @Test
